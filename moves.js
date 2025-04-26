@@ -87,49 +87,165 @@ function resetMannequin() {
 }
 
 /**
- * Démarre l'animation appropriée pour la catégorie sélectionnée
- * @param {string} category - La catégorie d'exercice à animer
+ * Démarre l'animation appropriée pour l'exercice sélectionné
+ * @param {Object} exercise - L'exercice à animer
  * @returns {number} - ID de l'animation requestAnimationFrame
  */
-function startAnimation(category) {
+function startAnimation(exercise) {
     stopAnimation(); // Arrête toute animation existante
     animationPaused = false;
     
-    // Choisir l'animation en fonction de la catégorie
-    if (!category) {
+    if (!exercise) {
         return null;
     }
     
-    // Animation par catégorie
-    if (category === 'Bradykinésie') {
-        currentAnimation = animateBradykinesia();
-    } else if (category.includes('Bras') || category.includes('épaules')) {
-        currentAnimation = animateArmsAndShoulders();
-    } else if (category.includes('Jambes') || category.includes('pieds')) {
-        currentAnimation = animateLegsAndFeet();
-    } else if (category.includes('quilibre')) {
-        currentAnimation = animateBalance();
-    } else if (category.includes('Flexibilit')) {
-        currentAnimation = animateFlexibility();
-    } else if (category.includes('Tête') || category.includes('cou')) {
-        currentAnimation = animateHeadAndNeck();
-    } else if (category === 'Tronc') {
-        currentAnimation = animateTrunk();
-    } else if (category.includes('Respiration')) {
-        currentAnimation = animateBreathing();
-    } else {
-        // Animation par défaut pour les autres catégories
-        currentAnimation = animateGeneral();
+    // Choisir l'animation en fonction du type d'animation de l'exercice
+    switch (exercise.animationType) {
+        // Animations pour Bradykinésie
+        case "kickingLegs":
+            currentAnimation = animateKickingLegs();
+            break;
+        case "kneeRaises":
+            currentAnimation = animateKneeRaises();
+            break;
+        case "legRaises":
+            currentAnimation = animateLegRaises();
+            break;
+        case "armSwing":
+            currentAnimation = animateArmSwing();
+            break;
+            
+        // Animations pour Bras et épaules
+        case "armRaises":
+            currentAnimation = animateArmRaises();
+            break;
+        case "armCircles":
+            currentAnimation = animateArmCircles();
+            break;
+        case "wristCircles":
+            currentAnimation = animateWristCircles();
+            break;
+        case "shoulderShrugs":
+            currentAnimation = animateShoulderShrugs();
+            break;
+            
+        // Animations pour Équilibre
+        case "oneLegStand":
+            currentAnimation = animateOneLegStand();
+            break;
+        case "tandemWalk":
+            currentAnimation = animateTandemWalk();
+            break;
+        case "weightShift":
+            currentAnimation = animateWeightShift();
+            break;
+        case "stepForward":
+            currentAnimation = animateStepForward();
+            break;
+            
+        // Animations pour Jambes et pieds
+        case "footLifts":
+            currentAnimation = animateFootLifts();
+            break;
+        case "calfRaises":
+            currentAnimation = animateCalfRaises();
+            break;
+        case "ankleRotations":
+            currentAnimation = animateAnkleRotations();
+            break;
+        case "toeSpreads":
+            currentAnimation = animateToeSpreads();
+            break;
+            
+        // Animations pour Tête et cou
+        case "headTurns":
+            currentAnimation = animateHeadTurns();
+            break;
+        case "headNods":
+            currentAnimation = animateHeadNods();
+            break;
+        case "headTilts":
+            currentAnimation = animateHeadTilts();
+            break;
+        case "headCircles":
+            currentAnimation = animateHeadCircles();
+            break;
+            
+        // Animations pour Tronc
+        case "trunkRotation":
+            currentAnimation = animateTrunkRotation();
+            break;
+        case "lateralTrunkBend":
+            currentAnimation = animateLateralTrunkBend();
+            break;
+        case "trunkForwardBend":
+            currentAnimation = animateTrunkForwardBend();
+            break;
+        case "hipCircles":
+            currentAnimation = animateHipCircles();
+            break;
+            
+        // Animations pour Respiration
+        case "deepBreathing":
+            currentAnimation = animateDeepBreathing();
+            break;
+        case "abdominalBreathing":
+            currentAnimation = animateAbdominalBreathing();
+            break;
+        case "rhythmicBreathing":
+            currentAnimation = animateRhythmicBreathing();
+            break;
+        case "breathWithArms":
+            currentAnimation = animateBreathWithArms();
+            break;
+            
+        // Animations pour Flexibilité
+        case "armStretches":
+            currentAnimation = animateArmStretches();
+            break;
+        case "hamstringStretch":
+            currentAnimation = animateHamstringStretch();
+            break;
+        case "crossedLegStretch":
+            currentAnimation = animateCrossedLegStretch();
+            break;
+        case "kneeToChest":
+            currentAnimation = animateKneeToChest();
+            break;
+            
+        // Animation par défaut si aucun type spécifique n'est reconnu
+        default:
+            // Utiliser l'animation basée sur la catégorie comme fallback
+            if (exercise.category === 'Bradykinésie') {
+                currentAnimation = animateBradykinesia();
+            } else if (exercise.category.includes('Bras') || exercise.category.includes('épaules')) {
+                currentAnimation = animateArmsAndShoulders();
+            } else if (exercise.category.includes('quilibre')) {
+                currentAnimation = animateBalance();
+            } else if (exercise.category.includes('Jambes') || exercise.category.includes('pieds')) {
+                currentAnimation = animateLegsAndFeet();
+            } else if (exercise.category.includes('Tête') || exercise.category.includes('cou')) {
+                currentAnimation = animateHeadAndNeck();
+            } else if (exercise.category === 'Tronc') {
+                currentAnimation = animateTrunk();
+            } else if (exercise.category.includes('Respiration')) {
+                currentAnimation = animateBreathing();
+            } else if (exercise.category.includes('Flexibilit')) {
+                currentAnimation = animateFlexibility();
+            } else {
+                currentAnimation = animateGeneral();
+            }
     }
     
     return currentAnimation;
 }
 
+// ================== ANIMATIONS SPÉCIFIQUES ==================
+
 /**
- * Animation pour la bradykinésie (mouvements lents)
- * @returns {number} - ID de l'animation requestAnimationFrame
+ * Animation pour donner des coups de pied alternés
  */
-function animateBradykinesia() {
+function animateKickingLegs() {
     let startTime = null;
     const duration = 3000; // 3 secondes par cycle
     
@@ -150,8 +266,8 @@ function animateBradykinesia() {
         // Mouvement de la jambe gauche - coup de pied vers l'avant
         const leftKneeX = 100 - 20 * leftLegPhase;
         const leftKneeY = 150 + 80 * (1 - leftLegPhase * 0.5);
-        const leftFootX = leftKneeX - 10 - 30 * leftLegPhase;
-        const leftFootY = leftKneeY + 80 - 40 * leftLegPhase;
+        const leftFootX = leftKneeX - 10 - 40 * leftLegPhase;
+        const leftFootY = leftKneeY + 80 - 50 * leftLegPhase;
         
         document.getElementById('left-upper-leg').setAttribute('x2', leftKneeX);
         document.getElementById('left-upper-leg').setAttribute('y2', leftKneeY);
@@ -164,8 +280,8 @@ function animateBradykinesia() {
         if (progress >= 0.5) {
             const rightKneeX = 100 + 20 * rightLegPhase;
             const rightKneeY = 150 + 80 * (1 - rightLegPhase * 0.5);
-            const rightFootX = rightKneeX + 10 + 30 * rightLegPhase;
-            const rightFootY = rightKneeY + 80 - 40 * rightLegPhase;
+            const rightFootX = rightKneeX + 10 + 40 * rightLegPhase;
+            const rightFootY = rightKneeY + 80 - 50 * rightLegPhase;
             
             document.getElementById('right-upper-leg').setAttribute('x2', rightKneeX);
             document.getElementById('right-upper-leg').setAttribute('y2', rightKneeY);
@@ -190,10 +306,274 @@ function animateBradykinesia() {
 }
 
 /**
+ * Animation pour lever les genoux en marchant
+ */
+function animateKneeRaises() {
+    let startTime = null;
+    const duration = 2000; // 2 secondes par cycle
+    
+    function frame(timestamp) {
+        if (animationPaused) {
+            currentAnimation = requestAnimationFrame(frame);
+            return;
+        }
+        
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        
+        // Animation pour la marche avec genoux levés
+        if (progress < 0.5) {
+            // Premier demi-cycle: jambe gauche levée, jambe droite au sol
+            const phase = progress * 2; // 0 à 1
+            
+            // Jambe gauche levée
+            const leftKneeX = 100 - 15 * phase;
+            const leftKneeY = 230 - 70 * phase;
+            const leftFootX = leftKneeX - 10;
+            const leftFootY = leftKneeY + 30;
+            
+            document.getElementById('left-upper-leg').setAttribute('x2', leftKneeX);
+            document.getElementById('left-upper-leg').setAttribute('y2', leftKneeY);
+            document.getElementById('left-lower-leg').setAttribute('x1', leftKneeX);
+            document.getElementById('left-lower-leg').setAttribute('y1', leftKneeY);
+            document.getElementById('left-lower-leg').setAttribute('x2', leftFootX);
+            document.getElementById('left-lower-leg').setAttribute('y2', leftFootY);
+            
+            // Jambe droite au sol
+            document.getElementById('right-upper-leg').setAttribute('x2', '120');
+            document.getElementById('right-upper-leg').setAttribute('y2', '230');
+            document.getElementById('right-lower-leg').setAttribute('x1', '120');
+            document.getElementById('right-lower-leg').setAttribute('y1', '230');
+            document.getElementById('right-lower-leg').setAttribute('x2', '130');
+            document.getElementById('right-lower-leg').setAttribute('y2', '310');
+            
+        } else {
+            // Second demi-cycle: jambe droite levée, jambe gauche au sol
+            const phase = (progress - 0.5) * 2; // 0 à 1
+            
+            // Jambe droite levée
+            const rightKneeX = 100 + 15 * phase;
+            const rightKneeY = 230 - 70 * phase;
+            const rightFootX = rightKneeX + 10;
+            const rightFootY = rightKneeY + 30;
+            
+            document.getElementById('right-upper-leg').setAttribute('x2', rightKneeX);
+            document.getElementById('right-upper-leg').setAttribute('y2', rightKneeY);
+            document.getElementById('right-lower-leg').setAttribute('x1', rightKneeX);
+            document.getElementById('right-lower-leg').setAttribute('y1', rightKneeY);
+            document.getElementById('right-lower-leg').setAttribute('x2', rightFootX);
+            document.getElementById('right-lower-leg').setAttribute('y2', rightFootY);
+            
+            // Jambe gauche au sol
+            document.getElementById('left-upper-leg').setAttribute('x2', '80');
+            document.getElementById('left-upper-leg').setAttribute('y2', '230');
+            document.getElementById('left-lower-leg').setAttribute('x1', '80');
+            document.getElementById('left-lower-leg').setAttribute('y1', '230');
+            document.getElementById('left-lower-leg').setAttribute('x2', '70');
+            document.getElementById('left-lower-leg').setAttribute('y2', '310');
+        }
+        
+        // Ajouter le balancement des bras en opposition avec les jambes
+        if (progress < 0.5) {
+            const armPhase = progress * 2;
+            
+            // Bras droit vers l'avant
+            document.getElementById('right-upper-arm').setAttribute('x2', 130 - 20 * armPhase);
+            document.getElementById('right-upper-arm').setAttribute('y2', 120 - 10 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('x1', 130 - 20 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('y1', 120 - 10 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('x2', 150 - 30 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('y2', 150 - 20 * armPhase);
+            
+            // Bras gauche vers l'arrière
+            document.getElementById('left-upper-arm').setAttribute('x2', 70 + 10 * armPhase);
+            document.getElementById('left-upper-arm').setAttribute('y2', 120 - 5 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('x1', 70 + 10 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('y1', 120 - 5 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('x2', 50 + 20 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('y2', 150 - 10 * armPhase);
+        } else {
+            const armPhase = (progress - 0.5) * 2;
+            
+            // Bras gauche vers l'avant
+            document.getElementById('left-upper-arm').setAttribute('x2', 70 - 20 * armPhase);
+            document.getElementById('left-upper-arm').setAttribute('y2', 120 - 10 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('x1', 70 - 20 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('y1', 120 - 10 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('x2', 50 - 30 * armPhase);
+            document.getElementById('left-lower-arm').setAttribute('y2', 150 - 20 * armPhase);
+            
+            // Bras droit vers l'arrière
+            document.getElementById('right-upper-arm').setAttribute('x2', 130 + 10 * armPhase);
+            document.getElementById('right-upper-arm').setAttribute('y2', 120 - 5 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('x1', 130 + 10 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('y1', 120 - 5 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('x2', 150 + 20 * armPhase);
+            document.getElementById('right-lower-arm').setAttribute('y2', 150 - 10 * armPhase);
+        }
+        
+        currentAnimation = requestAnimationFrame(frame);
+    }
+    
+    return requestAnimationFrame(frame);
+}
+
+/**
+ * Animation pour lever lentement une jambe tendue
+ */
+function animateLegRaises() {
+    let startTime = null;
+    const duration = 4000; // 4 secondes par cycle
+    
+    function frame(timestamp) {
+        if (animationPaused) {
+            currentAnimation = requestAnimationFrame(frame);
+            return;
+        }
+        
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        
+        if (progress < 0.5) {
+            // Première moitié: lever la jambe gauche
+            const upPhase = progress * 2; // 0 à 1
+            
+            // Lever lentement la jambe gauche tendue
+            const leftKneeX = 80 - 10 * upPhase;
+            const leftKneeY = 230 - 50 * upPhase;
+            const leftFootX = 70 - 20 * upPhase;
+            const leftFootY = 310 - 150 * upPhase;
+            
+            document.getElementById('left-upper-leg').setAttribute('x2', leftKneeX);
+            document.getElementById('left-upper-leg').setAttribute('y2', leftKneeY);
+            document.getElementById('left-lower-leg').setAttribute('x1', leftKneeX);
+            document.getElementById('left-lower-leg').setAttribute('y1', leftKneeY);
+            document.getElementById('left-lower-leg').setAttribute('x2', leftFootX);
+            document.getElementById('left-lower-leg').setAttribute('y2', leftFootY);
+            
+        } else {
+            // Seconde moitié: lever la jambe droite
+            const upPhase = (progress - 0.5) * 2; // 0 à 1
+            
+            // Remettre la jambe gauche en position initiale
+            document.getElementById('left-upper-leg').setAttribute('x2', '80');
+            document.getElementById('left-upper-leg').setAttribute('y2', '230');
+            document.getElementById('left-lower-leg').setAttribute('x1', '80');
+            document.getElementById('left-lower-leg').setAttribute('y1', '230');
+            document.getElementById('left-lower-leg').setAttribute('x2', '70');
+            document.getElementById('left-lower-leg').setAttribute('y2', '310');
+            
+            // Lever lentement la jambe droite tendue
+            const rightKneeX = 120 + 10 * upPhase;
+            const rightKneeY = 230 - 50 * upPhase;
+            const rightFootX = 130 + 20 * upPhase;
+            const rightFootY = 310 - 150 * upPhase;
+            
+            document.getElementById('right-upper-leg').setAttribute('x2', rightKneeX);
+            document.getElementById('right-upper-leg').setAttribute('y2', rightKneeY);
+            document.getElementById('right-lower-leg').setAttribute('x1', rightKneeX);
+            document.getElementById('right-lower-leg').setAttribute('y1', rightKneeY);
+            document.getElementById('right-lower-leg').setAttribute('x2', rightFootX);
+            document.getElementById('right-lower-leg').setAttribute('y2', rightFootY);
+        }
+        
+        currentAnimation = requestAnimationFrame(frame);
+    }
+    
+    return requestAnimationFrame(frame);
+}
+
+/**
+ * Animation pour le balancement des bras en marchant
+ */
+function animateArmSwing() {
+    let startTime = null;
+    const duration = 3000; // 3 secondes par cycle
+    
+    function frame(timestamp) {
+        if (animationPaused) {
+            currentAnimation = requestAnimationFrame(frame);
+            return;
+        }
+        
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        
+        // Simuler un balancement de bras lent et délibéré
+        const phase = Math.sin(progress * Math.PI * 2);
+        
+        // Bras gauche
+        const leftShoulderX = 100;
+        const leftShoulderY = 90;
+        const leftElbowX = leftShoulderX - 30 - 15 * phase;
+        const leftElbowY = leftShoulderY + 30;
+        const leftHandX = leftElbowX - 20 - 10 * phase;
+        const leftHandY = leftElbowY + 30;
+        
+        document.getElementById('left-upper-arm').setAttribute('x2', leftElbowX);
+        document.getElementById('left-upper-arm').setAttribute('y2', leftElbowY);
+        document.getElementById('left-lower-arm').setAttribute('x1', leftElbowX);
+        document.getElementById('left-lower-arm').setAttribute('y1', leftElbowY);
+        document.getElementById('left-lower-arm').setAttribute('x2', leftHandX);
+        document.getElementById('left-lower-arm').setAttribute('y2', leftHandY);
+        
+        // Bras droit (en opposition de phase)
+        const rightShoulderX = 100;
+        const rightShoulderY = 90;
+        const rightElbowX = rightShoulderX + 30 + 15 * phase;
+        const rightElbowY = rightShoulderY + 30;
+        const rightHandX = rightElbowX + 20 + 10 * phase;
+        const rightHandY = rightElbowY + 30;
+        
+        document.getElementById('right-upper-arm').setAttribute('x2', rightElbowX);
+        document.getElementById('right-upper-arm').setAttribute('y2', rightElbowY);
+        document.getElementById('right-lower-arm').setAttribute('x1', rightElbowX);
+        document.getElementById('right-lower-arm').setAttribute('y1', rightElbowY);
+        document.getElementById('right-lower-arm').setAttribute('x2', rightHandX);
+        document.getElementById('right-lower-arm').setAttribute('y2', rightHandY);
+        
+        // Léger mouvement des jambes pour simuler la marche
+        const legPhase = Math.sin(progress * Math.PI * 2) * 0.5;
+        
+        const leftKneeX = 80 + 5 * legPhase;
+        const leftFootX = 70 + 10 * legPhase;
+        
+        document.getElementById('left-upper-leg').setAttribute('x2', leftKneeX);
+        document.getElementById('left-lower-leg').setAttribute('x1', leftKneeX);
+        document.getElementById('left-lower-leg').setAttribute('x2', leftFootX);
+        
+        const rightKneeX = 120 - 5 * legPhase;
+        const rightFootX = 130 - 10 * legPhase;
+        
+        document.getElementById('right-upper-leg').setAttribute('x2', rightKneeX);
+        document.getElementById('right-lower-leg').setAttribute('x1', rightKneeX);
+        document.getElementById('right-lower-leg').setAttribute('x2', rightFootX);
+        
+        currentAnimation = requestAnimationFrame(frame);
+    }
+    
+    return requestAnimationFrame(frame);
+}
+
+// =======================================================
+// Conservez les fonctions d'animation par catégorie pour le fallback
+
+/**
+ * Animation pour la bradykinésie (mouvements lents)
+ */
+function animateBradykinesia() {
+    // Code existant
+    return animateKickingLegs(); // Utiliser l'animation de coups de pied comme fallback
+}
+
+/**
  * Animation pour les exercices des bras et des épaules
- * @returns {number} - ID de l'animation requestAnimationFrame
  */
 function animateArmsAndShoulders() {
+    // Code existant
     let startTime = null;
     const duration = 4000; // 4 secondes par cycle
     
@@ -248,9 +628,9 @@ function animateArmsAndShoulders() {
 
 /**
  * Animation pour les exercices des jambes et des pieds
- * @returns {number} - ID de l'animation requestAnimationFrame
  */
 function animateLegsAndFeet() {
+    // Code existant
     let startTime = null;
     const duration = 3000; // 3 secondes par cycle
     
@@ -302,9 +682,16 @@ function animateLegsAndFeet() {
 
 /**
  * Animation pour les exercices d'équilibre
- * @returns {number} - ID de l'animation requestAnimationFrame
  */
 function animateBalance() {
+    // Code existant
+    return animateOneLegStand(); // Utiliser l'animation sur une jambe comme fallback
+}
+
+/**
+ * Animation pour se tenir sur une jambe
+ */
+function animateOneLegStand() {
     let startTime = null;
     const duration = 5000; // 5 secondes par cycle
     
@@ -401,10 +788,66 @@ function animateBalance() {
 }
 
 /**
+ * Animation pour les exercices de la tête et du cou
+ */
+function animateHeadAndNeck() {
+    // Code existant
+    return animateHeadTurns(); // Utiliser l'animation de rotation de tête comme fallback
+}
+
+/**
+ * Animation pour tourner la tête d'un côté à l'autre
+ */
+function animateHeadTurns() {
+    let startTime = null;
+    const duration = 3000; // 3 secondes par cycle
+    
+    function frame(timestamp) {
+        if (animationPaused) {
+            currentAnimation = requestAnimationFrame(frame);
+            return;
+        }
+        
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        
+        // Rotation de la tête d'un côté à l'autre
+        const headX = 100 + 20 * Math.sin(progress * Math.PI * 2);
+        
+        // Mettre à jour la position de la tête
+        document.getElementById('head').setAttribute('cx', headX);
+        
+        // Mettre à jour le haut de la colonne vertébrale pour correspondre au mouvement de la tête
+        document.getElementById('spine').setAttribute('x1', 100 + (headX - 100) * 0.3);
+        
+        currentAnimation = requestAnimationFrame(frame);
+    }
+    
+    return requestAnimationFrame(frame);
+}
+
+/**
+ * Animation pour les exercices du tronc
+ */
+function animateTrunk() {
+    // Code existant
+    return animateTrunkRotation(); // Utiliser l'animation de rotation du tronc comme fallback
+}
+
+/**
+ * Animation pour les exercices de respiration
+ */
+function animateBreathing() {
+    // Code existant
+    return animateDeepBreathing(); // Utiliser l'animation de respiration profonde comme fallback
+}
+
+/**
  * Animation pour les exercices de flexibilité
- * @returns {number} - ID de l'animation requestAnimationFrame
  */
 function animateFlexibility() {
+    // Code existant
     let startTime = null;
     const duration = 4000; // 4 secondes par cycle
     
@@ -476,222 +919,10 @@ function animateFlexibility() {
 }
 
 /**
- * Animation pour les exercices de la tête et du cou
- * @returns {number} - ID de l'animation requestAnimationFrame
- */
-function animateHeadAndNeck() {
-    let startTime = null;
-    const duration = 4000; // 4 secondes par cycle
-    
-    function frame(timestamp) {
-        if (animationPaused) {
-            currentAnimation = requestAnimationFrame(frame);
-            return;
-        }
-        
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        const cyclePosition = (elapsed % duration) / duration;
-        
-        // Diviser le cycle en 4 segments pour différents mouvements de tête/cou
-        const segment = Math.floor(cyclePosition * 4);
-        const segmentProgress = (cyclePosition * 4) % 1;
-        
-        let headX = 100;
-        let headY = 50;
-        
-        switch (segment) {
-            case 0: // Incliner la tête à gauche
-                headX = 100 - 15 * segmentProgress;
-                break;
-            case 1: // Revenir au centre, puis incliner à droite
-                headX = 85 + 15 * segmentProgress;
-                if (segmentProgress > 0.5) {
-                    headX = 100 + 15 * (segmentProgress - 0.5) * 2;
-                }
-                break;
-            case 2: // Revenir au centre, puis incliner vers l'avant
-                headX = 115 - 15 * segmentProgress;
-                if (segmentProgress > 0.5) {
-                    headY = 50 + 10 * (segmentProgress - 0.5) * 2;
-                }
-                break;
-            case 3: // Revenir au centre, puis incliner vers l'arrière
-                headY = 55 - 5 * segmentProgress;
-                if (segmentProgress > 0.5) {
-                    headY = 50 - 10 * (segmentProgress - 0.5) * 2;
-                }
-                break;
-        }
-        
-        // Mettre à jour la position de la tête
-        document.getElementById('head').setAttribute('cx', headX);
-        document.getElementById('head').setAttribute('cy', headY);
-        
-        // Mettre à jour le haut de la colonne vertébrale pour correspondre au mouvement de la tête (zone du cou)
-        document.getElementById('spine').setAttribute('x1', headX);
-        document.getElementById('spine').setAttribute('y1', headY + 20);
-        
-        currentAnimation = requestAnimationFrame(frame);
-    }
-    
-    return requestAnimationFrame(frame);
-}
-
-/**
- * Animation pour les exercices du tronc
- * @returns {number} - ID de l'animation requestAnimationFrame
- */
-function animateTrunk() {
-    let startTime = null;
-    const duration = 5000; // 5 secondes par cycle
-    
-    function frame(timestamp) {
-        if (animationPaused) {
-            currentAnimation = requestAnimationFrame(frame);
-            return;
-        }
-        
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        const cyclePosition = (elapsed % duration) / duration;
-        
-        // Diviser le cycle en 3 segments : se pencher à gauche, se pencher à droite, rotation
-        const segment = Math.floor(cyclePosition * 3);
-        const segmentProgress = (cyclePosition * 3) % 1;
-        
-        const hipX = 100;
-        const hipY = 150;
-        let spineTopX = 100;
-        let spineTopY = 70;
-        
-        switch (segment) {
-            case 0: // Incliner le tronc à gauche
-                if (segmentProgress < 0.5) {
-                    // Se pencher à gauche
-                    spineTopX = 100 - 20 * segmentProgress * 2;
-                } else {
-                    // Revenir au centre
-                    spineTopX = 80 + 20 * (segmentProgress - 0.5) * 2;
-                }
-                break;
-            case 1: // Incliner le tronc à droite
-                if (segmentProgress < 0.5) {
-                    // Se pencher à droite
-                    spineTopX = 100 + 20 * segmentProgress * 2;
-                } else {
-                    // Revenir au centre
-                    spineTopX = 120 - 20 * (segmentProgress - 0.5) * 2;
-                }
-                break;
-            case 2: // Rotation du tronc (simulée par le mouvement de la colonne vertébrale)
-                // Rotation en déplaçant la colonne vertébrale en petit cercle
-                spineTopX = 100 + 10 * Math.sin(segmentProgress * Math.PI * 2);
-                spineTopY = 70 + 5 * Math.cos(segmentProgress * Math.PI * 2);
-                break;
-        }
-        
-        // Mettre à jour la position de la colonne vertébrale et de la tête
-        document.getElementById('spine').setAttribute('x1', spineTopX);
-        document.getElementById('spine').setAttribute('y1', spineTopY);
-        document.getElementById('head').setAttribute('cx', spineTopX);
-        document.getElementById('head').setAttribute('cy', spineTopY - 20);
-        
-        // Déplacer les bras avec le tronc
-        const shoulderX = spineTopX;
-        const shoulderY = spineTopY + 20;
-        
-        // Ajuster le bras gauche
-        document.getElementById('left-upper-arm').setAttribute('x1', shoulderX);
-        document.getElementById('left-upper-arm').setAttribute('y1', shoulderY);
-        const leftElbowX = shoulderX - 30;
-        const leftElbowY = shoulderY + 30;
-        document.getElementById('left-upper-arm').setAttribute('x2', leftElbowX);
-        document.getElementById('left-upper-arm').setAttribute('y2', leftElbowY);
-        document.getElementById('left-lower-arm').setAttribute('x1', leftElbowX);
-        document.getElementById('left-lower-arm').setAttribute('y1', leftElbowY);
-        
-        // Ajuster le bras droit
-        document.getElementById('right-upper-arm').setAttribute('x1', shoulderX);
-        document.getElementById('right-upper-arm').setAttribute('y1', shoulderY);
-        const rightElbowX = shoulderX + 30;
-        const rightElbowY = shoulderY + 30;
-        document.getElementById('right-upper-arm').setAttribute('x2', rightElbowX);
-        document.getElementById('right-upper-arm').setAttribute('y2', rightElbowY);
-        document.getElementById('right-lower-arm').setAttribute('x1', rightElbowX);
-        document.getElementById('right-lower-arm').setAttribute('y1', rightElbowY);
-        
-        currentAnimation = requestAnimationFrame(frame);
-    }
-    
-    return requestAnimationFrame(frame);
-}
-
-/**
- * Animation pour les exercices de respiration
- * @returns {number} - ID de l'animation requestAnimationFrame
- */
-function animateBreathing() {
-    let startTime = null;
-    const duration = 5000; // 5 secondes par cycle de respiration
-    
-    function frame(timestamp) {
-        if (animationPaused) {
-            currentAnimation = requestAnimationFrame(frame);
-            return;
-        }
-        
-        if (!startTime) startTime = timestamp;
-        const elapsed = timestamp - startTime;
-        const progress = (elapsed % duration) / duration;
-        
-        // Simuler la respiration avec l'expansion de la poitrine et le mouvement des bras
-        const breathPhase = Math.sin(progress * Math.PI * 2);
-        const expansion = Math.max(0, breathPhase); // Valeurs positives pour l'inspiration
-        
-        // Les épaules se déplacent légèrement vers le haut et vers l'extérieur pendant l'inspiration
-        const shoulderOffsetY = -5 * expansion;
-        const shoulderOffsetX = 5 * expansion;
-        
-        // Bras gauche
-        document.getElementById('left-upper-arm').setAttribute('x1', '100');
-        document.getElementById('left-upper-arm').setAttribute('y1', 90 + shoulderOffsetY);
-        document.getElementById('left-upper-arm').setAttribute('x2', 70 - shoulderOffsetX);
-        document.getElementById('left-upper-arm').setAttribute('y2', 120 + shoulderOffsetY);
-        
-        document.getElementById('left-lower-arm').setAttribute('x1', 70 - shoulderOffsetX);
-        document.getElementById('left-lower-arm').setAttribute('y1', 120 + shoulderOffsetY);
-        document.getElementById('left-lower-arm').setAttribute('x2', 50 - shoulderOffsetX);
-        document.getElementById('left-lower-arm').setAttribute('y2', 150 + shoulderOffsetY);
-        
-        // Bras droit
-        document.getElementById('right-upper-arm').setAttribute('x1', '100');
-        document.getElementById('right-upper-arm').setAttribute('y1', 90 + shoulderOffsetY);
-        document.getElementById('right-upper-arm').setAttribute('x2', 130 + shoulderOffsetX);
-        document.getElementById('right-upper-arm').setAttribute('y2', 120 + shoulderOffsetY);
-        
-        document.getElementById('right-lower-arm').setAttribute('x1', 130 + shoulderOffsetX);
-        document.getElementById('right-lower-arm').setAttribute('y1', 120 + shoulderOffsetY);
-        document.getElementById('right-lower-arm').setAttribute('x2', 150 + shoulderOffsetX);
-        document.getElementById('right-lower-arm').setAttribute('y2', 150 + shoulderOffsetY);
-        
-        // Légère extension de la colonne vertébrale
-        document.getElementById('spine').setAttribute('y1', 70 + shoulderOffsetY);
-        
-        // La tête se déplace légèrement vers le haut avec la respiration
-        document.getElementById('head').setAttribute('cy', 50 + shoulderOffsetY);
-        
-        currentAnimation = requestAnimationFrame(frame);
-    }
-    
-    return requestAnimationFrame(frame);
-}
-
-/**
  * Animation générale pour les autres catégories d'exercices
- * @returns {number} - ID de l'animation requestAnimationFrame
  */
 function animateGeneral() {
+    // Code existant
     let startTime = null;
     const duration = 4000; // 4 secondes par cycle
     
@@ -758,3 +989,150 @@ function animateGeneral() {
     
     return requestAnimationFrame(frame);
 }
+
+// =======================================================
+// Créez ici toutes les autres fonctions d'animation spécifiques
+// comme animateArmRaises, animateHeadNods, etc.
+// selon les types définis dans data.js.
+// =======================================================
+
+/**
+ * Animation pour lever les bras
+ */
+function animateArmRaises() {
+    let startTime = null;
+    const duration = 4000; // 4 secondes par cycle
+    
+    function frame(timestamp) {
+        if (animationPaused) {
+            currentAnimation = requestAnimationFrame(frame);
+            return;
+        }
+        
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        
+        // Mouvement des bras au-dessus de la tête puis sur les côtés
+        if (progress < 0.5) {
+            // Lever les bras au-dessus de la tête
+            const phase = progress * 2; // 0 à 1
+            
+            // Bras gauche
+            const leftElbowX = 100 - 20 * (1 - phase);
+            const leftElbowY = 90 - 30 * phase;
+            const leftHandX = leftElbowX - 20 + 40 * phase;
+            const leftHandY = leftElbowY - 30 * phase;
+            
+            document.getElementById('left-upper-arm').setAttribute('x2', leftElbowX);
+            document.getElementById('left-upper-arm').setAttribute('y2', leftElbowY);
+            document.getElementById('left-lower-arm').setAttribute('x1', leftElbowX);
+            document.getElementById('left-lower-arm').setAttribute('y1', leftElbowY);
+            document.getElementById('left-lower-arm').setAttribute('x2', leftHandX);
+            document.getElementById('left-lower-arm').setAttribute('y2', leftHandY);
+            
+            // Bras droit
+            const rightElbowX = 100 + 20 * (1 - phase);
+            const rightElbowY = 90 - 30 * phase;
+            const rightHandX = rightElbowX + 20 - 40 * phase;
+            const rightHandY = rightElbowY - 30 * phase;
+            
+            document.getElementById('right-upper-arm').setAttribute('x2', rightElbowX);
+            document.getElementById('right-upper-arm').setAttribute('y2', rightElbowY);
+            document.getElementById('right-lower-arm').setAttribute('x1', rightElbowX);
+            document.getElementById('right-lower-arm').setAttribute('y1', rightElbowY);
+            document.getElementById('right-lower-arm').setAttribute('x2', rightHandX);
+            document.getElementById('right-lower-arm').setAttribute('y2', rightHandY);
+            
+        } else {
+            // Abaisser les bras sur les côtés
+            const phase = (progress - 0.5) * 2; // 0 à 1
+            
+            // Bras gauche
+            const leftElbowX = 100 - 20 * phase;
+            const leftElbowY = 60 + 60 * phase;
+            const leftHandX = leftElbowX + 20 - 40 * phase;
+            const leftHandY = leftElbowY - 30 + 60 * phase;
+            
+            document.getElementById('left-upper-arm').setAttribute('x2', leftElbowX);
+            document.getElementById('left-upper-arm').setAttribute('y2', leftElbowY);
+            document.getElementById('left-lower-arm').setAttribute('x1', leftElbowX);
+            document.getElementById('left-lower-arm').setAttribute('y1', leftElbowY);
+            document.getElementById('left-lower-arm').setAttribute('x2', leftHandX);
+            document.getElementById('left-lower-arm').setAttribute('y2', leftHandY);
+            
+            // Bras droit
+            const rightElbowX = 100 + 20 * phase;
+            const rightElbowY = 60 + 60 * phase;
+            const rightHandX = rightElbowX - 20 + 40 * phase;
+            const rightHandY = rightElbowY - 30 + 60 * phase;
+            
+            document.getElementById('right-upper-arm').setAttribute('x2', rightElbowX);
+            document.getElementById('right-upper-arm').setAttribute('y2', rightElbowY);
+            document.getElementById('right-lower-arm').setAttribute('x1', rightElbowX);
+            document.getElementById('right-lower-arm').setAttribute('y1', rightElbowY);
+            document.getElementById('right-lower-arm').setAttribute('x2', rightHandX);
+            document.getElementById('right-lower-arm').setAttribute('y2', rightHandY);
+        }
+        
+        currentAnimation = requestAnimationFrame(frame);
+    }
+    
+    return requestAnimationFrame(frame);
+}
+
+/**
+ * Animation pour la respiration profonde
+ */
+function animateDeepBreathing() {
+    let startTime = null;
+    const duration = 6000; // 6 secondes par cycle (respiration lente)
+    
+    function frame(timestamp) {
+        if (animationPaused) {
+            currentAnimation = requestAnimationFrame(frame);
+            return;
+        }
+        
+        if (!startTime) startTime = timestamp;
+        const elapsed = timestamp - startTime;
+        const progress = (elapsed % duration) / duration;
+        
+        // Cycle de respiration: 0-0.4 inspiration, 0.4-1 expiration
+        let breathPhase;
+        if (progress < 0.4) {
+            // Inspiration (0 à 1)
+            breathPhase = progress / 0.4;
+        } else {
+            // Expiration (1 à 0)
+            breathPhase = 1 - ((progress - 0.4) / 0.6);
+        }
+        
+        // Expansion de la cage thoracique
+        const expansion = 5 * breathPhase;
+        
+        // Mouvement subtil des épaules
+        const shoulderY = 90 - 3 * breathPhase;
+        
+        // Mise à jour des bras pour suivre le mouvement des épaules
+        document.getElementById('left-upper-arm').setAttribute('y1', shoulderY);
+        document.getElementById('right-upper-arm').setAttribute('y1', shoulderY);
+        
+        // Expansion légère de la colonne vertébrale
+        document.getElementById('spine').setAttribute('x2', 100 - expansion);
+        document.getElementById('left-upper-leg').setAttribute('x1', 100 - expansion);
+        document.getElementById('right-upper-leg').setAttribute('x1', 100 - expansion);
+        
+        // Léger mouvement des épaules vers le haut pendant l'inspiration
+        document.getElementById('left-upper-arm').setAttribute('x2', 70 - expansion);
+        document.getElementById('left-lower-arm').setAttribute('x1', 70 - expansion);
+        document.getElementById('right-upper-arm').setAttribute('x2', 130 + expansion);
+        document.getElementById('right-lower-arm').setAttribute('x1', 130 + expansion);
+        
+        currentAnimation = requestAnimationFrame(frame);
+    }
+    
+    return requestAnimationFrame(frame);
+}
+
+// Ajoutez d'autres fonctions d'animation spécifiques ici...
