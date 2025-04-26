@@ -3,7 +3,7 @@
  * Ce fichier contient les données statiques des exercices avec leurs types d'animation.
  */
 
-// Variable pour stocker les exercices - exposée globalement via window
+// Définition explicite de window.exercises comme un tableau vide
 window.exercises = [];
 
 /**
@@ -60,6 +60,8 @@ window.initExercisesData = function() {
     window.exercises.push({ category: "Flexibilité", instructions: "Assis, tendez une jambe et penchez-vous en avant pour toucher votre pied.", animationType: "hamstringStretch" });
     window.exercises.push({ category: "Flexibilité", instructions: "Debout, croisez une jambe devant l'autre et penchez-vous lentement en avant.", animationType: "crossedLegStretch" });
     window.exercises.push({ category: "Flexibilité", instructions: "Allongé sur le dos, ramenez un genou vers la poitrine et maintenez-le avec vos mains.", animationType: "kneeToChest" });
+    
+    return window.exercises; // Retourner les exercices pour confirmation
 }
 
 /**
@@ -67,6 +69,12 @@ window.initExercisesData = function() {
  * @returns {string[]} - Tableau des catégories uniques, triées alphabétiquement
  */
 window.getCategories = function() {
+    // Vérification de sécurité pour s'assurer que exercises existe
+    if (!window.exercises || !Array.isArray(window.exercises)) {
+        console.error("Le tableau des exercices n'est pas correctement initialisé");
+        window.initExercisesData(); // Tenter une réinitialisation
+    }
+    
     return [...new Set(window.exercises.map(ex => ex.category))]
         .filter(Boolean)
         .sort();
@@ -78,7 +86,23 @@ window.getCategories = function() {
  * @returns {Object[]} - Tableau d'objets exercices correspondant à la catégorie
  */
 window.getExercisesByCategory = function(category) {
-    return window.exercises.filter(ex => ex.category === category);
+    // Vérification de sécurité pour s'assurer que exercises existe
+    if (!window.exercises || !Array.isArray(window.exercises)) {
+        console.error("Le tableau des exercices n'est pas correctement initialisé");
+        window.initExercisesData(); // Tenter une réinitialisation
+    }
+    
+    // Log pour le débogage
+    console.log(`Recherche d'exercices pour la catégorie: "${category}"`);
+    console.log(`Nombre total d'exercices: ${window.exercises.length}`);
+    
+    // Filtre avec vérification supplémentaire
+    const result = window.exercises.filter(ex => {
+        return ex && ex.category === category;
+    });
+    
+    console.log(`Nombre d'exercices trouvés: ${result.length}`);
+    return result;
 }
 
 /**
@@ -97,8 +121,15 @@ window.getExerciseByIndex = function(category, index) {
  * @returns {Object[]} - Tableau de tous les exercices
  */
 window.getAllExercises = function() {
+    // Vérification de sécurité pour s'assurer que exercises existe
+    if (!window.exercises || !Array.isArray(window.exercises) || window.exercises.length === 0) {
+        console.log("Initialisation des exercices car le tableau est vide ou non initialisé");
+        window.initExercisesData();
+    }
     return window.exercises;
 }
 
-// Initialiser les données au chargement du script
+// Appelle explicitement initExercisesData pour s'assurer que les exercices sont chargés
+console.log("Initialisation des données d'exercices...");
 window.initExercisesData();
+console.log(`${window.exercises.length} exercices ont été chargés`);
