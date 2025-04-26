@@ -1,14 +1,14 @@
 :root {
     --primary-color: #3498db;
-    --secondary-color: #2ecc71;
+    --secondary-color: #27ae60;
     --text-color: #333;
     --bg-color: #f5f5f5;
     --light-bg: #ffffff;
-    --shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 body {
-    font-family: 'Arial', sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
     background-color: var(--bg-color);
@@ -26,8 +26,9 @@ header {
     color: white;
     padding: 20px 0;
     text-align: center;
-    border-radius: 8px 8px 0 0;
+    border-radius: 10px;
     margin-bottom: 20px;
+    box-shadow: var(--shadow);
 }
 
 header h1 {
@@ -46,7 +47,7 @@ header h1 {
     min-width: 300px;
     background-color: var(--light-bg);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: var(--shadow);
 }
 
@@ -55,7 +56,7 @@ header h1 {
     min-width: 300px;
     background-color: var(--light-bg);
     padding: 20px;
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: var(--shadow);
     display: flex;
     flex-direction: column;
@@ -64,11 +65,11 @@ header h1 {
 
 .mannequin-container {
     width: 100%;
-    height: 400px;
+    height: 500px;
     position: relative;
-    overflow: hidden;
-    background-color: #f0f0f0;
+    background-color: #f9f9f9;
     border-radius: 8px;
+    overflow: hidden;
     margin-bottom: 20px;
 }
 
@@ -81,9 +82,10 @@ header h1 {
     width: 100%;
     min-height: 100px;
     padding: 15px;
-    background-color: #f8f8f8;
+    background-color: #f0f7f4;
     border-radius: 8px;
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid var(--secondary-color);
 }
 
 label {
@@ -94,26 +96,34 @@ label {
 
 select {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     margin-bottom: 20px;
     border: 1px solid #ddd;
-    border-radius: 4px;
+    border-radius: 6px;
     background-color: white;
+    font-size: 16px;
 }
 
 button {
     background-color: var(--secondary-color);
     color: white;
     border: none;
-    padding: 10px 15px;
-    border-radius: 4px;
+    padding: 12px 20px;
+    border-radius: 6px;
     cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    font-size: 16px;
 }
 
 button:hover {
-    background-color: #27ae60;
+    background-color: #219955;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
 }
 
 .controls-buttons {
@@ -126,6 +136,7 @@ button:hover {
     font-weight: bold;
     margin-bottom: 10px;
     color: var(--primary-color);
+    font-size: 18px;
 }
 
 footer {
@@ -136,8 +147,58 @@ footer {
     font-size: 14px;
 }
 
+/* Styles pour le mannequin SVG */
+.body-part {
+    fill: #f5d0a9;
+    stroke: #d49768;
+    stroke-width: 1;
+}
+
+.joint {
+    fill: #b36b32;
+    stroke: #8c5627;
+    stroke-width: 0.5;
+}
+
+.head {
+    fill: #f5d0a9;
+    stroke: #d49768;
+    stroke-width: 1.5;
+}
+
+.eye {
+    fill: #333;
+}
+
+.mouth {
+    fill: none;
+    stroke: #99664c;
+    stroke-width: 1.5;
+}
+
+.clothing {
+    fill: #a8d5e5;
+    stroke: #7fb3c8;
+    stroke-width: 1;
+}
+
+.pants {
+    fill: #7d98a3;
+    stroke: #5a717a;
+    stroke-width: 1;
+}
+
 @media (max-width: 768px) {
     .main-content {
         flex-direction: column;
+    }
+    
+    .controls-buttons {
+        flex-direction: column;
+        gap: 10px;
+    }
+    
+    button {
+        width: 100%;
     }
 }
