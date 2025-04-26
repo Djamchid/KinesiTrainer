@@ -43,6 +43,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Attacher les gestionnaires d'événements
         attachEventListeners();
+        
+        // Désactiver les boutons initialement
+        pauseButton.disabled = true;
+        resetButton.disabled = true;
     }
     
     /**
@@ -194,6 +198,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Réinitialiser l'affichage si une nouvelle catégorie est sélectionnée
             resetExerciseDisplay();
+            resetButton.disabled = true;
+            pauseButton.disabled = true;
         });
         
         // Gestionnaire pour le changement d'exercice
@@ -201,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (this.value !== '') {
                 console.log(`Exercice sélectionné: index ${this.value}`);
                 displaySelectedExercise();
+                resetButton.disabled = false;
             }
         });
         
@@ -292,6 +299,11 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Démarrer l'animation pour l'exercice spécifique
             startAnimation(selectedExercise);
+            
+            // Mettre à jour l'état des boutons
+            playButton.disabled = true;
+            pauseButton.disabled = false;
+            resetButton.disabled = false;
         }
     }
     
@@ -328,5 +340,10 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Réinitialiser le texte du bouton de pause
         pauseButton.textContent = 'Pause';
+        
+        // Mettre à jour l'état des boutons
+        playButton.disabled = false;
+        pauseButton.disabled = true;
+        resetButton.disabled = true;
     }
 });
