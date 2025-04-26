@@ -35,8 +35,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Vider d'abord le sélecteur
         categorySelect.innerHTML = '<option value="">Sélectionnez une catégorie</option>';
         
-        // Obtenir les catégories
-        const categories = getCategories();
+        // Obtenir les catégories en utilisant la fonction globale attachée à window
+        const categories = window.getCategories();
         
         // Ajouter chaque catégorie au sélecteur
         categories.forEach(category => {
@@ -46,8 +46,11 @@ document.addEventListener('DOMContentLoaded', function() {
             categorySelect.appendChild(option);
         });
         
+        // Obtenir tous les exercices pour afficher le comptage
+        const allExercises = window.getAllExercises();
+        
         // Afficher un message dans les instructions
-        instructionsText.textContent = `${exercises.length} exercices disponibles dans ${categories.length} catégories. Veuillez sélectionner une catégorie.`;
+        instructionsText.textContent = `${allExercises.length} exercices disponibles dans ${categories.length} catégories. Veuillez sélectionner une catégorie.`;
     }
     
     /**
@@ -60,8 +63,8 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!category) return;
         
-        // Obtenir les exercices de la catégorie
-        const categoryExercises = getExercisesByCategory(category);
+        // Obtenir les exercices de la catégorie en utilisant la fonction globale
+        const categoryExercises = window.getExercisesByCategory(category);
         
         // Ajouter chaque exercice au sélecteur
         categoryExercises.forEach((ex, index) => {
@@ -110,7 +113,7 @@ document.addEventListener('DOMContentLoaded', function() {
         const category = categorySelect.value;
         
         // Obtenir les exercices de la catégorie et sélectionner celui choisi
-        const categoryExercises = getExercisesByCategory(category);
+        const categoryExercises = window.getExercisesByCategory(category);
         
         if (categoryExercises.length > exerciseIndex) {
             const selectedExercise = categoryExercises[exerciseIndex];
@@ -148,7 +151,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Récupérer l'exercice sélectionné
         const exerciseIndex = parseInt(exerciseSelect.value);
         const category = categorySelect.value;
-        const selectedExercise = getExerciseByIndex(category, exerciseIndex);
+        const selectedExercise = window.getExerciseByIndex(category, exerciseIndex);
         
         if (selectedExercise) {
             // Démarrer l'animation pour l'exercice spécifique
