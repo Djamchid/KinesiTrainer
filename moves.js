@@ -41,30 +41,30 @@ const standingPositions = {
     rightFoot: { cx: 190, cy: 455 }
 };
 
-// Positions assises du mannequin
+// Positions assises du mannequin - Redéfinies pour être clairement différentes
 const sittingPositions = {
-    head: { cx: 150, cy: 120 },
-    neck: { path: "M150,150 L150,165" },
-    leftShoulder: { cx: 130, cy: 170 },
-    rightShoulder: { cx: 170, cy: 170 },
-    leftUpperArm: { path: "M130,170 L100,220" },
-    rightUpperArm: { path: "M170,170 L200,220" },
-    leftElbow: { cx: 100, cy: 220 },
-    rightElbow: { cx: 200, cy: 220 },
-    leftForearm: { path: "M100,220 L90,270" },
-    rightForearm: { path: "M200,220 L210,270" },
-    leftHand: { cx: 90, cy: 270 },
-    rightHand: { cx: 210, cy: 270 },
-    torso: { path: "M130,170 L170,170 L180,270 L120,270 Z" },
-    hips: { path: "M120,270 L180,270 L190,280 L110,280 Z" },
-    leftThigh: { path: "M130,280 L90,350" },
-    rightThigh: { path: "M170,280 L210,350" },
-    leftKnee: { cx: 90, cy: 350 },
-    rightKnee: { cx: 210, cy: 350 },
-    leftCalf: { path: "M90,350 L110,420" },
-    rightCalf: { path: "M210,350 L190,420" },
-    leftFoot: { cx: 110, cy: 425 },
-    rightFoot: { cx: 190, cy: 425 }
+    head: { cx: 150, cy: 170 },
+    neck: { path: "M150,200 L150,215" },
+    leftShoulder: { cx: 130, cy: 220 },
+    rightShoulder: { cx: 170, cy: 220 },
+    leftUpperArm: { path: "M130,220 L100,260" },
+    rightUpperArm: { path: "M170,220 L200,260" },
+    leftElbow: { cx: 100, cy: 260 },
+    rightElbow: { cx: 200, cy: 260 },
+    leftForearm: { path: "M100,260 L90,300" },
+    rightForearm: { path: "M200,260 L210,300" },
+    leftHand: { cx: 90, cy: 300 },
+    rightHand: { cx: 210, cy: 300 },
+    torso: { path: "M130,220 L170,220 L180,300 L120,300 Z" },
+    hips: { path: "M120,300 L180,300 L190,320 L110,320 Z" },
+    leftThigh: { path: "M130,320 L100,380" },
+    rightThigh: { path: "M170,320 L200,380" },
+    leftKnee: { cx: 100, cy: 380 },
+    rightKnee: { cx: 200, cy: 380 },
+    leftCalf: { path: "M100,380 L120,450" },
+    rightCalf: { path: "M200,380 L180,450" },
+    leftFoot: { cx: 120, cy: 455 },
+    rightFoot: { cx: 180, cy: 455 }
 };
 
 // Positions couchées du mannequin
@@ -207,6 +207,9 @@ function applyInitialPosition() {
     document.getElementById('left-foot').setAttribute('cy', initialPositions.leftFoot.cy);
     document.getElementById('right-foot').setAttribute('cx', initialPositions.rightFoot.cx);
     document.getElementById('right-foot').setAttribute('cy', initialPositions.rightFoot.cy);
+
+    // Log pour débogage
+    console.log(`Position appliquée: ${animationState.currentPosition}`);
 }
 
 /**
@@ -214,6 +217,8 @@ function applyInitialPosition() {
  * @param {string} position - 'standing', 'sitting', 'lying'
  */
 function setInitialPosition(position) {
+    console.log(`Changement de position vers: ${position}`);
+    
     switch (position) {
         case 'sitting':
             initialPositions = sittingPositions;
@@ -377,7 +382,13 @@ function startAnimation(exercise) {
         case "trunkForwardBend":
             if (exercise.instructions.toLowerCase().includes('assis')) {
                 setInitialPosition('sitting');
-                currentAnimationFunction = animateTrunkForwardBendSitting;
+                // Déterminer s'il s'agit de l'exercice spécifique "se lever sans les bras"
+                if (exercise.instructions.toLowerCase().includes('lever') && 
+                    exercise.instructions.toLowerCase().includes('sans utiliser vos bras')) {
+                    currentAnimationFunction = animateSitToStandWithoutArms;
+                } else {
+                    currentAnimationFunction = animateTrunkForwardBendSitting;
+                }
             } else {
                 currentAnimationFunction = animateTrunkForwardBend;
             }
@@ -484,6 +495,571 @@ function determineInitialPosition(exercise) {
     } else {
         setInitialPosition('standing');
     }
+}
+
+/**
+ * Animation pour montrer le mouvement de se lever d'une chaise et s'asseoir sans utiliser les bras
+ */
+function animateSitToStandWithoutArms(timestamp) {
+    if (animationPaused) {
+        currentAnimation = requestAnimationFrame(animateSitToStandWithoutArms);
+        return;
+    }
+    
+    const elapsed = timestamp - startTime;
+    const duration = 8000; // 8 secondes par cycle complet
+    const progress = (elapsed % duration) / duration;
+    
+    // Diviser l'animation en 4 phases :
+    // 1. Position assise initiale et préparation (0-10%)
+    // 2. Se lever (10-40%)
+    // 3. Position debout complète (40-60%)
+    // 4. S'asseoir à nouveau (60-100%)
+    
+    if (progress < 0.1) {
+        // Phase 1: Position assise initiale - légère préparation en se penchant en avant
+        const phase = easeInOutQuad(progress * 10); // 0 à 1
+        
+        // Pencher légèrement le tronc en avant en préparation
+        const trunkTiltFactor = phase * 0.15;
+        
+        // Ajuster la position du torse et de la tête pour l'inclinaison vers l'avant
+        adjustUpperBodyForwardTilt(trunkTiltFactor, sittingPositions);
+        
+        // Les bras restent le long du corps (sans utiliser les bras)
+        keepArmsAlongBody();
+        
+    } else if (progress < 0.4) {
+        // Phase 2: Se lever progressivement
+        const phase = easeInOutQuad((progress - 0.1) / 0.3); // 0 à 1
+        
+        // Interpoler entre position assise et debout
+        interpolatePositions(sittingPositions, standingPositions, phase);
+        
+        // Ajouter une inclinaison vers l'avant plus prononcée au début du mouvement
+        const forwardTilt = Math.max(0, 0.3 - phase * 0.3);
+        adjustUpperBodyForwardTilt(forwardTilt, null);
+        
+        // Maintenir les bras le long du corps
+        keepArmsAlongBody();
+        
+    } else if (progress < 0.6) {
+        // Phase 3: Position debout complète
+        applyStandingPosition();
+        
+        // Maintenir les bras le long du corps
+        keepArmsAlongBody();
+        
+    } else {
+        // Phase 4: S'asseoir à nouveau
+        const phase = easeInOutQuad((progress - 0.6) / 0.4); // 0 à 1
+        
+        // Interpoler entre position debout et assise
+        interpolatePositions(standingPositions, sittingPositions, phase);
+        
+        // Ajouter une inclinaison vers l'avant plus prononcée au début du mouvement pour s'asseoir
+        const forwardTilt = Math.min(0.3, phase * 0.3);
+        adjustUpperBodyForwardTilt(forwardTilt, null);
+        
+        // Maintenir les bras le long du corps
+        keepArmsAlongBody();
+    }
+    
+    currentAnimation = requestAnimationFrame(animateSitToStandWithoutArms);
+}
+
+/**
+ * Ajuste le haut du corps pour une inclinaison vers l'avant
+ * @param {number} tiltFactor - Facteur d'inclinaison (0 à 1)
+ * @param {Object} basePosition - Position de base (facultatif)
+ */
+function adjustUpperBodyForwardTilt(tiltFactor, basePosition) {
+    const base = basePosition || {
+        head: { cx: parseFloat(document.getElementById('head').getAttribute('cx')), 
+                cy: parseFloat(document.getElementById('head').getAttribute('cy')) },
+        neck: { path: document.getElementById('neck').getAttribute('d') }
+    };
+    
+    // Calculer l'inclinaison de la tête
+    const headForwardOffset = 20 * tiltFactor;
+    const headDownOffset = 5 * tiltFactor;
+    
+    // Appliquer l'inclinaison à la tête
+    document.getElementById('head').setAttribute('cx', base.head.cx + headForwardOffset);
+    document.getElementById('head').setAttribute('cy', base.head.cy + headDownOffset);
+    
+    // Ajuster le cou
+    const neckParts = base.neck.path.split(' ');
+    if (neckParts.length >= 2) {
+        const start = neckParts[0].replace('M', '').split(',');
+        const end = neckParts[1].replace('L', '').split(',');
+        
+        if (start.length >= 2 && end.length >= 2) {
+            const startX = parseFloat(start[0]) + headForwardOffset * 0.7;
+            const startY = parseFloat(start[1]) + headDownOffset * 0.7;
+            
+            document.getElementById('neck').setAttribute('d', 
+                `M${startX},${startY} L${end[0]},${end[1]}`
+            );
+        }
+    }
+    
+    // Ajuster le torse pour l'inclinaison
+    const torsoPath = document.getElementById('torso').getAttribute('d').split(' ');
+    if (torsoPath.length >= 5) {
+        const points = [];
+        
+        // Extraire les points du torse
+        for (let i = 0; i < torsoPath.length; i++) {
+            if (torsoPath[i].includes('M') || torsoPath[i].includes('L') || torsoPath[i].includes('Z')) {
+                const point = torsoPath[i].replace('M', '').replace('L', '').replace('Z', '');
+                if (point) {
+                    points.push(point.split(','));
+                }
+            }
+        }
+        
+        if (points.length >= 4) {
+            // Ajuster les points supérieurs du torse pour l'inclinaison
+            const topLeftX = parseFloat(points[0][0]) + headForwardOffset * 0.5;
+            const topLeftY = parseFloat(points[0][1]) + headDownOffset * 0.5;
+            
+            const topRightX = parseFloat(points[1][0]) + headForwardOffset * 0.5;
+            const topRightY = parseFloat(points[1][1]) + headDownOffset * 0.5;
+            
+            // Reconstruire le chemin du torse
+            document.getElementById('torso').setAttribute('d', 
+                `M${topLeftX},${topLeftY} L${topRightX},${topRightY} L${points[2][0]},${points[2][1]} L${points[3][0]},${points[3][1]} Z`
+            );
+        }
+    }
+}
+
+/**
+ * Maintient les bras le long du corps
+ */
+function keepArmsAlongBody() {
+    // Obtenir la position actuelle du torse
+    const torsoPath = document.getElementById('torso').getAttribute('d').split(' ');
+    if (torsoPath.length < 5) return;
+    
+    // Extraire les points clés du torse
+    const points = [];
+    for (let i = 0; i < torsoPath.length; i++) {
+        if (torsoPath[i].includes('M') || torsoPath[i].includes('L') || torsoPath[i].includes('Z')) {
+            const point = torsoPath[i].replace('M', '').replace('L', '').replace('Z', '');
+            if (point) {
+                points.push(point.split(','));
+            }
+        }
+    }
+    
+    if (points.length < 4) return;
+    
+    // Points d'épaule
+    const leftShoulderX = parseFloat(points[0][0]);
+    const leftShoulderY = parseFloat(points[0][1]);
+    const rightShoulderX = parseFloat(points[1][0]);
+    const rightShoulderY = parseFloat(points[1][1]);
+    
+    // Points de hanche
+    const leftHipX = parseFloat(points[3][0]);
+    const leftHipY = parseFloat(points[3][1]);
+    const rightHipX = parseFloat(points[2][0]);
+    const rightHipY = parseFloat(points[2][1]);
+    
+    // Positions pour les bras le long du corps
+    const leftElbowX = leftShoulderX - (leftShoulderX - leftHipX) * 0.3;
+    const leftElbowY = leftShoulderY + (leftHipY - leftShoulderY) * 0.5;
+    const leftHandX = leftHipX - 5;
+    const leftHandY = leftHipY - 10;
+    
+    const rightElbowX = rightShoulderX - (rightShoulderX - rightHipX) * 0.3;
+    const rightElbowY = rightShoulderY + (rightHipY - rightShoulderY) * 0.5;
+    const rightHandX = rightHipX + 5;
+    const rightHandY = rightHipY - 10;
+    
+    // Mise à jour des bras
+    document.getElementById('left-shoulder').setAttribute('cx', leftShoulderX);
+    document.getElementById('left-shoulder').setAttribute('cy', leftShoulderY);
+    document.getElementById('right-shoulder').setAttribute('cx', rightShoulderX);
+    document.getElementById('right-shoulder').setAttribute('cy', rightShoulderY);
+    
+    document.getElementById('left-upper-arm').setAttribute('d', 
+        `M${leftShoulderX},${leftShoulderY} L${leftElbowX},${leftElbowY}`
+    );
+    document.getElementById('right-upper-arm').setAttribute('d', 
+        `M${rightShoulderX},${rightShoulderY} L${rightElbowX},${rightElbowY}`
+    );
+    
+    document.getElementById('left-elbow').setAttribute('cx', leftElbowX);
+    document.getElementById('left-elbow').setAttribute('cy', leftElbowY);
+    document.getElementById('right-elbow').setAttribute('cx', rightElbowX);
+    document.getElementById('right-elbow').setAttribute('cy', rightElbowY);
+    
+    document.getElementById('left-forearm').setAttribute('d', 
+        `M${leftElbowX},${leftElbowY} L${leftHandX},${leftHandY}`
+    );
+    document.getElementById('right-forearm').setAttribute('d', 
+        `M${rightElbowX},${rightElbowY} L${rightHandX},${rightHandY}`
+    );
+    
+    document.getElementById('left-hand').setAttribute('cx', leftHandX);
+    document.getElementById('left-hand').setAttribute('cy', leftHandY);
+    document.getElementById('right-hand').setAttribute('cx', rightHandX);
+    document.getElementById('right-hand').setAttribute('cy', rightHandY);
+}
+
+/**
+ * Interpolation entre deux positions
+ * @param {Object} startPos - Position de départ
+ * @param {Object} endPos - Position d'arrivée
+ * @param {number} factor - Facteur d'interpolation (0 à 1)
+ */
+function interpolatePositions(startPos, endPos, factor) {
+    // Tête
+    const headX = startPos.head.cx + (endPos.head.cx - startPos.head.cx) * factor;
+    const headY = startPos.head.cy + (endPos.head.cy - startPos.head.cy) * factor;
+    document.getElementById('head').setAttribute('cx', headX);
+    document.getElementById('head').setAttribute('cy', headY);
+    
+    // Cou
+    const startNeck = startPos.neck.path.split(' ');
+    const endNeck = endPos.neck.path.split(' ');
+    
+    if (startNeck.length >= 2 && endNeck.length >= 2) {
+        const startNeckPt1 = startNeck[0].replace('M', '').split(',');
+        const startNeckPt2 = startNeck[1].replace('L', '').split(',');
+        const endNeckPt1 = endNeck[0].replace('M', '').split(',');
+        const endNeckPt2 = endNeck[1].replace('L', '').split(',');
+        
+        const neckX1 = parseFloat(startNeckPt1[0]) + (parseFloat(endNeckPt1[0]) - parseFloat(startNeckPt1[0])) * factor;
+        const neckY1 = parseFloat(startNeckPt1[1]) + (parseFloat(endNeckPt1[1]) - parseFloat(startNeckPt1[1])) * factor;
+        const neckX2 = parseFloat(startNeckPt2[0]) + (parseFloat(endNeckPt2[0]) - parseFloat(startNeckPt2[0])) * factor;
+        const neckY2 = parseFloat(startNeckPt2[1]) + (parseFloat(endNeckPt2[1]) - parseFloat(startNeckPt2[1])) * factor;
+        
+        document.getElementById('neck').setAttribute('d', `M${neckX1},${neckY1} L${neckX2},${neckY2}`);
+    }
+    
+    // Épaules
+    const leftShoulderX = startPos.leftShoulder.cx + (endPos.leftShoulder.cx - startPos.leftShoulder.cx) * factor;
+    const leftShoulderY = startPos.leftShoulder.cy + (endPos.leftShoulder.cy - startPos.leftShoulder.cy) * factor;
+    const rightShoulderX = startPos.rightShoulder.cx + (endPos.rightShoulder.cx - startPos.rightShoulder.cx) * factor;
+    const rightShoulderY = startPos.rightShoulder.cy + (endPos.rightShoulder.cy - startPos.rightShoulder.cy) * factor;
+    
+    document.getElementById('left-shoulder').setAttribute('cx', leftShoulderX);
+    document.getElementById('left-shoulder').setAttribute('cy', leftShoulderY);
+    document.getElementById('right-shoulder').setAttribute('cx', rightShoulderX);
+    document.getElementById('right-shoulder').setAttribute('cy', rightShoulderY);
+    
+    // Torse
+    const startTorso = startPos.torso.path.split(' ');
+    const endTorso = endPos.torso.path.split(' ');
+    
+    if (startTorso.length >= 5 && endTorso.length >= 5) {
+        const startTorsoPoints = extractPoints(startTorso);
+        const endTorsoPoints = extractPoints(endTorso);
+        
+        if (startTorsoPoints.length >= 4 && endTorsoPoints.length >= 4) {
+            let newTorsoPath = "M";
+            
+            for (let i = 0; i < 4; i++) {
+                const x = parseFloat(startTorsoPoints[i][0]) + (parseFloat(endTorsoPoints[i][0]) - parseFloat(startTorsoPoints[i][0])) * factor;
+                const y = parseFloat(startTorsoPoints[i][1]) + (parseFloat(endTorsoPoints[i][1]) - parseFloat(startTorsoPoints[i][1])) * factor;
+                
+                newTorsoPath += (i == 0 ? "" : " L") + `${x},${y}`;
+            }
+            
+            newTorsoPath += " Z";
+            document.getElementById('torso').setAttribute('d', newTorsoPath);
+        }
+    }
+    
+    // Hanches
+    const startHips = startPos.hips.path.split(' ');
+    const endHips = endPos.hips.path.split(' ');
+    
+    if (startHips.length >= 5 && endHips.length >= 5) {
+        const startHipsPoints = extractPoints(startHips);
+        const endHipsPoints = extractPoints(endHips);
+        
+        if (startHipsPoints.length >= 4 && endHipsPoints.length >= 4) {
+            let newHipsPath = "M";
+            
+            for (let i = 0; i < 4; i++) {
+                const x = parseFloat(startHipsPoints[i][0]) + (parseFloat(endHipsPoints[i][0]) - parseFloat(startHipsPoints[i][0])) * factor;
+                const y = parseFloat(startHipsPoints[i][1]) + (parseFloat(endHipsPoints[i][1]) - parseFloat(startHipsPoints[i][1])) * factor;
+                
+                newHipsPath += (i == 0 ? "" : " L") + `${x},${y}`;
+            }
+            
+            newHipsPath += " Z";
+            document.getElementById('hips').setAttribute('d', newHipsPath);
+        }
+    }
+    
+    // Cuisses
+    interpolatePath('left-thigh', startPos.leftThigh.path, endPos.leftThigh.path, factor);
+    interpolatePath('right-thigh', startPos.rightThigh.path, endPos.rightThigh.path, factor);
+    
+    // Genoux
+    const leftKneeX = startPos.leftKnee.cx + (endPos.leftKnee.cx - startPos.leftKnee.cx) * factor;
+    const leftKneeY = startPos.leftKnee.cy + (endPos.leftKnee.cy - startPos.leftKnee.cy) * factor;
+    const rightKneeX = startPos.rightKnee.cx + (endPos.rightKnee.cx - startPos.rightKnee.cx) * factor;
+    const rightKneeY = startPos.rightKnee.cy + (endPos.rightKnee.cy - startPos.rightKnee.cy) * factor;
+    
+    document.getElementById('left-knee').setAttribute('cx', leftKneeX);
+    document.getElementById('left-knee').setAttribute('cy', leftKneeY);
+    document.getElementById('right-knee').setAttribute('cx', rightKneeX);
+    document.getElementById('right-knee').setAttribute('cy', rightKneeY);
+    
+    // Mollets
+    interpolatePath('left-calf', startPos.leftCalf.path, endPos.leftCalf.path, factor);
+    interpolatePath('right-calf', startPos.rightCalf.path, endPos.rightCalf.path, factor);
+    
+    // Pieds
+    const leftFootX = startPos.leftFoot.cx + (endPos.leftFoot.cx - startPos.leftFoot.cx) * factor;
+    const leftFootY = startPos.leftFoot.cy + (endPos.leftFoot.cy - startPos.leftFoot.cy) * factor;
+    const rightFootX = startPos.rightFoot.cx + (endPos.rightFoot.cx - startPos.rightFoot.cx) * factor;
+    const rightFootY = startPos.rightFoot.cy + (endPos.rightFoot.cy - startPos.rightFoot.cy) * factor;
+    
+    document.getElementById('left-foot').setAttribute('cx', leftFootX);
+    document.getElementById('left-foot').setAttribute('cy', leftFootY);
+    document.getElementById('right-foot').setAttribute('cx', rightFootX);
+    document.getElementById('right-foot').setAttribute('cy', rightFootY);
+}
+
+/**
+ * Applique la position debout
+ */
+function applyStandingPosition() {
+    // Tête et cou
+    document.getElementById('head').setAttribute('cx', standingPositions.head.cx);
+    document.getElementById('head').setAttribute('cy', standingPositions.head.cy);
+    document.getElementById('neck').setAttribute('d', standingPositions.neck.path);
+    
+    // Épaules
+    document.getElementById('left-shoulder').setAttribute('cx', standingPositions.leftShoulder.cx);
+    document.getElementById('left-shoulder').setAttribute('cy', standingPositions.leftShoulder.cy);
+    document.getElementById('right-shoulder').setAttribute('cx', standingPositions.rightShoulder.cx);
+    document.getElementById('right-shoulder').setAttribute('cy', standingPositions.rightShoulder.cy);
+    
+    // Torse et hanches
+    document.getElementById('torso').setAttribute('d', standingPositions.torso.path);
+    document.getElementById('hips').setAttribute('d', standingPositions.hips.path);
+    
+    // Jambes
+    document.getElementById('left-thigh').setAttribute('d', standingPositions.leftThigh.path);
+    document.getElementById('right-thigh').setAttribute('d', standingPositions.rightThigh.path);
+    document.getElementById('left-knee').setAttribute('cx', standingPositions.leftKnee.cx);
+    document.getElementById('left-knee').setAttribute('cy', standingPositions.leftKnee.cy);
+    document.getElementById('right-knee').setAttribute('cx', standingPositions.rightKnee.cx);
+    document.getElementById('right-knee').setAttribute('cy', standingPositions.rightKnee.cy);
+    document.getElementById('left-calf').setAttribute('d', standingPositions.leftCalf.path);
+    document.getElementById('right-calf').setAttribute('d', standingPositions.rightCalf.path);
+    document.getElementById('left-foot').setAttribute('cx', standingPositions.leftFoot.cx);
+    document.getElementById('left-foot').setAttribute('cy', standingPositions.leftFoot.cy);
+    document.getElementById('right-foot').setAttribute('cx', standingPositions.rightFoot.cx);
+    document.getElementById('right-foot').setAttribute('cy', standingPositions.rightFoot.cy);
+}
+
+/**
+ * Extrait les points d'un chemin SVG
+ * @param {Array} pathArray - Tableau des parties du chemin SVG
+ * @returns {Array} - Tableau des coordonnées
+ */
+function extractPoints(pathArray) {
+    const points = [];
+    
+    for (let i = 0; i < pathArray.length; i++) {
+        if (pathArray[i].includes('M') || pathArray[i].includes('L') || pathArray[i].includes('Z')) {
+            const point = pathArray[i].replace('M', '').replace('L', '').replace('Z', '');
+            if (point) {
+                points.push(point.split(','));
+            }
+        }
+    }
+    
+    return points;
+}
+
+/**
+ * Interpole un chemin SVG entre deux valeurs
+ * @param {string} elementId - ID de l'élément SVG
+ * @param {string} startPath - Chemin de départ
+ * @param {string} endPath - Chemin d'arrivée
+ * @param {number} factor - Facteur d'interpolation (0 à 1)
+ */
+function interpolatePath(elementId, startPath, endPath, factor) {
+    const startPoints = startPath.split(' ');
+    const endPoints = endPath.split(' ');
+    
+    if (startPoints.length >= 2 && endPoints.length >= 2) {
+        const startPt1 = startPoints[0].replace('M', '').split(',');
+        const startPt2 = startPoints[1].replace('L', '').split(',');
+        const endPt1 = endPoints[0].replace('M', '').split(',');
+        const endPt2 = endPoints[1].replace('L', '').split(',');
+        
+        const x1 = parseFloat(startPt1[0]) + (parseFloat(endPt1[0]) - parseFloat(startPt1[0])) * factor;
+        const y1 = parseFloat(startPt1[1]) + (parseFloat(endPt1[1]) - parseFloat(startPt1[1])) * factor;
+        const x2 = parseFloat(startPt2[0]) + (parseFloat(endPt2[0]) - parseFloat(startPt2[0])) * factor;
+        const y2 = parseFloat(startPt2[1]) + (parseFloat(endPt2[1]) - parseFloat(startPt2[1])) * factor;
+        
+        document.getElementById(elementId).setAttribute('d', `M${x1},${y1} L${x2},${y2}`);
+    }
+}
+
+/**
+ * Animation pour la flexion du tronc vers l'avant en position assise
+ */
+function animateTrunkForwardBendSitting(timestamp) {
+    if (animationPaused) {
+        currentAnimation = requestAnimationFrame(animateTrunkForwardBendSitting);
+        return;
+    }
+    
+    const elapsed = timestamp - startTime;
+    const duration = 4000; // 4 secondes par cycle
+    const progress = (elapsed % duration) / duration;
+    
+    // Calculer la flexion
+    let flexionFactor;
+    
+    if (progress < 0.3) {
+        // Flexion vers l'avant
+        flexionFactor = easeInOutQuad(progress / 0.3) * 0.4; // 0 à 0.4
+    } else if (progress < 0.7) {
+        // Maintien en position fléchie
+        flexionFactor = 0.4;
+    } else {
+        // Retour à la position initiale
+        flexionFactor = 0.4 - easeInOutQuad((progress - 0.7) / 0.3) * 0.4; // 0.4 à 0
+    }
+    
+    // Appliquer la flexion du tronc
+    adjustUpperBodyForwardTilt(flexionFactor, sittingPositions);
+    
+    // Fléchir légèrement les bras en avant
+    const torsoPath = document.getElementById('torso').getAttribute('d').split(' ');
+    const points = extractPoints(torsoPath);
+    
+    if (points.length >= 4) {
+        const leftShoulderX = parseFloat(points[0][0]);
+        const leftShoulderY = parseFloat(points[0][1]);
+        const rightShoulderX = parseFloat(points[1][0]);
+        const rightShoulderY = parseFloat(points[1][1]);
+        
+        // Positions des coudes en flexion
+        const leftElbowX = leftShoulderX + 15 * flexionFactor;
+        const leftElbowY = leftShoulderY + 40 * flexionFactor;
+        const rightElbowX = rightShoulderX - 15 * flexionFactor;
+        const rightElbowY = rightShoulderY + 40 * flexionFactor;
+        
+        // Positions des mains en flexion
+        const leftHandX = leftElbowX + 30 * flexionFactor;
+        const leftHandY = leftElbowY + 30 * flexionFactor;
+        const rightHandX = rightElbowX - 30 * flexionFactor;
+        const rightHandY = rightElbowY + 30 * flexionFactor;
+        
+        // Mise à jour des bras
+        document.getElementById('left-upper-arm').setAttribute('d', 
+            `M${leftShoulderX},${leftShoulderY} L${leftElbowX},${leftElbowY}`
+        );
+        document.getElementById('right-upper-arm').setAttribute('d', 
+            `M${rightShoulderX},${rightShoulderY} L${rightElbowX},${rightElbowY}`
+        );
+        
+        document.getElementById('left-elbow').setAttribute('cx', leftElbowX);
+        document.getElementById('left-elbow').setAttribute('cy', leftElbowY);
+        document.getElementById('right-elbow').setAttribute('cx', rightElbowX);
+        document.getElementById('right-elbow').setAttribute('cy', rightElbowY);
+        
+        document.getElementById('left-forearm').setAttribute('d', 
+            `M${leftElbowX},${leftElbowY} L${leftHandX},${leftHandY}`
+        );
+        document.getElementById('right-forearm').setAttribute('d', 
+            `M${rightElbowX},${rightElbowY} L${rightHandX},${rightHandY}`
+        );
+        
+        document.getElementById('left-hand').setAttribute('cx', leftHandX);
+        document.getElementById('left-hand').setAttribute('cy', leftHandY);
+        document.getElementById('right-hand').setAttribute('cx', rightHandX);
+        document.getElementById('right-hand').setAttribute('cy', rightHandY);
+    }
+    
+    currentAnimation = requestAnimationFrame(animateTrunkForwardBendSitting);
+}
+
+/**
+ * Animation basique pour la flexion du tronc vers l'avant
+ */
+function animateTrunkForwardBend(timestamp) {
+    if (animationPaused) {
+        currentAnimation = requestAnimationFrame(animateTrunkForwardBend);
+        return;
+    }
+    
+    const elapsed = timestamp - startTime;
+    const duration = 4000; // 4 secondes par cycle
+    const progress = (elapsed % duration) / duration;
+    
+    // Calculer la flexion
+    let flexionFactor;
+    
+    if (progress < 0.3) {
+        // Flexion vers l'avant
+        flexionFactor = easeInOutQuad(progress / 0.3) * 0.5; // 0 à 0.5
+    } else if (progress < 0.7) {
+        // Maintien en position fléchie
+        flexionFactor = 0.5;
+    } else {
+        // Retour à la position initiale
+        flexionFactor = 0.5 - easeInOutQuad((progress - 0.7) / 0.3) * 0.5; // 0.5 à 0
+    }
+    
+    // Appliquer la flexion du tronc
+    adjustUpperBodyForwardTilt(flexionFactor, standingPositions);
+    
+    // Fléchir les genoux pour accompagner le mouvement
+    const kneesBendFactor = flexionFactor * 0.3;
+    
+    // Position des genoux fléchis
+    const leftKneeX = standingPositions.leftKnee.cx;
+    const leftKneeY = standingPositions.leftKnee.cy - 20 * kneesBendFactor;
+    const rightKneeX = standingPositions.rightKnee.cx;
+    const rightKneeY = standingPositions.rightKnee.cy - 20 * kneesBendFactor;
+    
+    // Mise à jour des genoux
+    document.getElementById('left-knee').setAttribute('cy', leftKneeY);
+    document.getElementById('right-knee').setAttribute('cy', rightKneeY);
+    
+    // Mise à jour des cuisses
+    const hipsPath = document.getElementById('hips').getAttribute('d').split(' ');
+    const hipsPoints = extractPoints(hipsPath);
+    
+    if (hipsPoints.length >= 4) {
+        const leftHipX = parseFloat(hipsPoints[0][0]);
+        const leftHipY = parseFloat(hipsPoints[0][1]);
+        const rightHipX = parseFloat(hipsPoints[1][0]);
+        const rightHipY = parseFloat(hipsPoints[1][1]);
+        
+        document.getElementById('left-thigh').setAttribute('d', 
+            `M${leftHipX},${leftHipY} L${leftKneeX},${leftKneeY}`
+        );
+        document.getElementById('right-thigh').setAttribute('d', 
+            `M${rightHipX},${rightHipY} L${rightKneeX},${rightKneeY}`
+        );
+    }
+    
+    // Mise à jour des mollets et pieds
+    document.getElementById('left-calf').setAttribute('d', 
+        `M${leftKneeX},${leftKneeY} L${standingPositions.leftFoot.cx},${standingPositions.leftFoot.cy}`
+    );
+    document.getElementById('right-calf').setAttribute('d', 
+        `M${rightKneeX},${rightKneeY} L${standingPositions.rightFoot.cx},${standingPositions.rightFoot.cy}`
+    );
+    
+    currentAnimation = requestAnimationFrame(animateTrunkForwardBend);
 }
 
 // ================== ANIMATIONS SPÉCIFIQUES ==================
@@ -1590,95 +2166,4 @@ function animateKneeToChestLying(timestamp) {
     }
     
     currentAnimation = requestAnimationFrame(animateKneeToChestLying);
-}
-
-// ================== FALLBACK ANIMATIONS ==================
-
-/**
- * Animation bradykinésie (fallback)
- */
-function animateBradykinesia(timestamp) {
-    return animateArmSwing(timestamp);
-}
-
-/**
- * Animation bras et épaules (fallback)
- */
-function animateArmsAndShoulders(timestamp) {
-    return animateArmRaises(timestamp);
-}
-
-/**
- * Animation équilibre (fallback)
- */
-function animateBalance(timestamp) {
-    return animateOneLegStand(timestamp);
-}
-
-/**
- * Animation jambes et pieds (fallback)
- */
-function animateLegsAndFeet(timestamp) {
-    if (animationState.currentPosition === 'sitting') {
-        return animateLegRaisesSitting(timestamp);
-    } else if (animationState.currentPosition === 'lying') {
-        return animateLegRaisesLying(timestamp);
-    } else {
-        return animateOneLegStand(timestamp);
-    }
-}
-
-/**
- * Animation tête et cou (fallback)
- */
-function animateHeadAndNeck(timestamp) {
-    return animateHeadTurns(timestamp);
-}
-
-/**
- * Animation tronc (fallback)
- */
-function animateTrunk(timestamp) {
-    if (animationState.currentPosition === 'sitting') {
-        return animateTrunkRotationSitting(timestamp);
-    } else {
-        return animateTrunkRotation(timestamp);
-    }
-}
-
-/**
- * Animation respiration (fallback)
- */
-function animateBreathing(timestamp) {
-    if (animationState.currentPosition === 'lying') {
-        return animateAbdominalBreathingLying(timestamp);
-    } else {
-        return animateDeepBreathing(timestamp);
-    }
-}
-
-/**
- * Animation flexibilité (fallback)
- */
-function animateFlexibility(timestamp) {
-    if (animationState.currentPosition === 'sitting') {
-        return animateHamstringStretchSitting(timestamp);
-    } else if (animationState.currentPosition === 'lying') {
-        return animateKneeToChestLying(timestamp);
-    } else {
-        return animateArmStretches(timestamp);
-    }
-}
-
-/**
- * Animation générale (fallback)
- */
-function animateGeneral(timestamp) {
-    if (animationState.currentPosition === 'sitting') {
-        return animateTrunkRotationSitting(timestamp);
-    } else if (animationState.currentPosition === 'lying') {
-        return animateAbdominalBreathingLying(timestamp);
-    } else {
-        return animateArmRaises(timestamp);
-    }
 }
