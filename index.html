@@ -33,34 +33,51 @@
 
             <div class="visualization">
                 <div class="mannequin-container">
-                    <svg id="mannequin" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Head -->
-                        <circle id="head" cx="100" cy="50" r="20" fill="#f5f5f5" stroke="#333" stroke-width="2" />
+                    <svg id="mannequin" viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Mannequin réaliste -->
                         
-                        <!-- Body -->
-                        <line id="spine" x1="100" y1="70" x2="100" y2="150" stroke="#333" stroke-width="3" />
+                        <!-- Tête -->
+                        <circle id="head" class="head" cx="150" cy="70" r="30" />
+                        <ellipse class="eye" cx="140" cy="65" rx="3" ry="4" />
+                        <ellipse class="eye" cx="160" cy="65" rx="3" ry="4" />
+                        <path class="mouth" d="M142,80 Q150,85 158,80" />
                         
-                        <!-- Arms -->
-                        <line id="left-upper-arm" x1="100" y1="90" x2="70" y2="120" stroke="#333" stroke-width="3" />
-                        <line id="left-lower-arm" x1="70" y1="120" x2="50" y2="150" stroke="#333" stroke-width="3" />
+                        <!-- Cou -->
+                        <path id="neck" class="body-part" d="M150,100 L150,115" stroke-width="12" />
                         
-                        <line id="right-upper-arm" x1="100" y1="90" x2="130" y2="120" stroke="#333" stroke-width="3" />
-                        <line id="right-lower-arm" x1="130" y1="120" x2="150" y2="150" stroke="#333" stroke-width="3" />
+                        <!-- Épaules -->
+                        <circle id="left-shoulder" class="joint" cx="130" cy="120" r="8" />
+                        <circle id="right-shoulder" class="joint" cx="170" cy="120" r="8" />
                         
-                        <!-- Legs -->
-                        <line id="left-upper-leg" x1="100" y1="150" x2="80" y2="230" stroke="#333" stroke-width="3" />
-                        <line id="left-lower-leg" x1="80" y1="230" x2="70" y2="310" stroke="#333" stroke-width="3" />
+                        <!-- Torse -->
+                        <path id="torso" class="body-part clothing" d="M130,120 L170,120 L180,220 L120,220 Z" />
                         
-                        <line id="right-upper-leg" x1="100" y1="150" x2="120" y2="230" stroke="#333" stroke-width="3" />
-                        <line id="right-lower-leg" x1="120" y1="230" x2="130" y2="310" stroke="#333" stroke-width="3" />
+                        <!-- Bras gauche -->
+                        <path id="left-upper-arm" class="body-part" d="M130,120 L100,170" stroke-width="12" />
+                        <circle id="left-elbow" class="joint" cx="100" cy="170" r="6" />
+                        <path id="left-forearm" class="body-part" d="M100,170 L90,220" stroke-width="10" />
+                        <circle id="left-hand" class="joint" cx="90" cy="220" r="6" />
                         
-                        <!-- Joints -->
-                        <circle cx="100" cy="90" r="4" fill="#333" />  <!-- Shoulders -->
-                        <circle cx="70" cy="120" r="3" fill="#333" />  <!-- Left elbow -->
-                        <circle cx="130" cy="120" r="3" fill="#333" /> <!-- Right elbow -->
-                        <circle cx="100" cy="150" r="4" fill="#333" /> <!-- Hips -->
-                        <circle cx="80" cy="230" r="3" fill="#333" />  <!-- Left knee -->
-                        <circle cx="120" cy="230" r="3" fill="#333" /> <!-- Right knee -->
+                        <!-- Bras droit -->
+                        <path id="right-upper-arm" class="body-part" d="M170,120 L200,170" stroke-width="12" />
+                        <circle id="right-elbow" class="joint" cx="200" cy="170" r="6" />
+                        <path id="right-forearm" class="body-part" d="M200,170 L210,220" stroke-width="10" />
+                        <circle id="right-hand" class="joint" cx="210" cy="220" r="6" />
+                        
+                        <!-- Hanches et bassin -->
+                        <path id="hips" class="body-part pants" d="M120,220 L180,220 L190,250 L110,250 Z" />
+                        
+                        <!-- Jambe gauche -->
+                        <path id="left-thigh" class="body-part pants" d="M130,250 L120,350" stroke-width="16" />
+                        <circle id="left-knee" class="joint" cx="120" cy="350" r="7" />
+                        <path id="left-calf" class="body-part" d="M120,350 L110,450" stroke-width="14" />
+                        <ellipse id="left-foot" class="body-part" cx="110" cy="455" rx="15" ry="5" />
+                        
+                        <!-- Jambe droite -->
+                        <path id="right-thigh" class="body-part pants" d="M170,250 L180,350" stroke-width="16" />
+                        <circle id="right-knee" class="joint" cx="180" cy="350" r="7" />
+                        <path id="right-calf" class="body-part" d="M180,350 L190,450" stroke-width="14" />
+                        <ellipse id="right-foot" class="body-part" cx="190" cy="455" rx="15" ry="5" />
                     </svg>
                 </div>
 
@@ -72,7 +89,7 @@
         </div>
 
         <footer>
-            © 2023 Application d'exercices de kinésithérapie DigiPark
+            © 2025 Application d'exercices de kinésithérapie DigiPark
         </footer>
     </div>
 
