@@ -1,7 +1,6 @@
 /**
  * main.js - Fichier principal de l'application d'exercices de kinésithérapie
- * Ce fichier initialise l'application, gère les interactions utilisateur et coordonne
- * les autres modules (data.js et moves.js).
+ * Ce fichier initialise l'application et gère les interactions utilisateur.
  */
 
 // Attendre que le DOM soit chargé avant de lancer l'application
@@ -21,17 +20,9 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * Initialise l'application
      */
-    async function init() {
-        // Essayer de charger les données depuis le fichier CSV
-        try {
-            await loadExercisesData();
-            populateCategories();
-        } catch (error) {
-            console.error("Erreur lors de l'initialisation de l'application:", error);
-            // Créer des données statiques en cas d'erreur
-            createStaticExercisesData();
-            populateCategories();
-        }
+    function init() {
+        // Les données sont maintenant chargées directement dans data.js
+        populateCategories();
         
         // Attacher les gestionnaires d'événements
         attachEventListeners();
@@ -56,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         
         // Afficher un message dans les instructions
-        instructionsText.textContent = `${exercises.length} exercices chargés dans ${categories.length} catégories. Veuillez sélectionner une catégorie.`;
+        instructionsText.textContent = `${exercises.length} exercices disponibles dans ${categories.length} catégories. Veuillez sélectionner une catégorie.`;
     }
     
     /**
@@ -154,8 +145,15 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Démarrer l'animation pour la catégorie sélectionnée
-        startAnimation(categorySelect.value);
+        // Récupérer l'exercice sélectionné
+        const exerciseIndex = parseInt(exerciseSelect.value);
+        const category = categorySelect.value;
+        const selectedExercise = getExerciseByIndex(category, exerciseIndex);
+        
+        if (selectedExercise) {
+            // Démarrer l'animation pour l'exercice spécifique
+            startAnimation(selectedExercise);
+        }
     }
     
     /**
